@@ -1,0 +1,33 @@
+JobBatchName            = "vLLM batch inference template"
+
+universe                = docker
+docker_image            = ghcr.io/jasonlo/vllm-bash:v0.6.4
+
+# Artefact
+executable              = run.sh
+transfer_input_files    = .env, batch_inference.py, inputs.jsonl
+transfer_output_files   = outputs.jsonl
+should_transfer_files   = YES
+
+# Logging
+stream_output           = true
+output                  = condor_log/output.$(Cluster)-$(Process).txt
+error                   = condor_log/error.$(Cluster)-$(Process).txt
+log                     = condor_log/log.$(Cluster)-$(Process).txt
+
+# Compute resources
+request_cpus            = 2
+request_memory          = 8GB
+request_disk            = 10GB
+
+# Extra GPU settings
+request_gpus            = 1
+
+# (Optional) Depending on the model and batch size, request GPU with sufficient memory   
+require_gpus            = GlobalMemoryMb >= 20000
+Requirements            = (Target.CUDADriverVersion >= 10.1)
++WantGPULab             = true
++GPUJobLength           = "short"
+
+# Runs
+queue 1
